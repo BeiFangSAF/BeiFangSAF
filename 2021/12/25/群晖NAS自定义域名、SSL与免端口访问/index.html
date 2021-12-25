@@ -1,0 +1,53 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><meta name="author" content="Sitrus"><title>群晖NAS自定义域名、SSL与免端口访问 · 空域</title><meta name="description" content="参考了各大平台上不同帖子，整理了一下自己的思路，有时间的话会补上详细过程和配图（大概没有）。
+1.将域名托管到DNSPod本人域名购自阿里云，但是发现腾讯云旗下的DNSPod.cn服务更完善些，遂转至DNSPod。
+只需在阿里云控制台将域名的DNS服务器切换为DNSPod指定的即可。
+2.DDNS与"><meta name="keywords" content="Blog,博客,Hexo"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="renderer" content="webkit"><link rel="shortcut icon" type="image/x-icon" href="/images/favicon.webp"><link rel="stylesheet" href="/css/style.css"><link rel="stylesheet" href="/css/blog_basic.css"><link rel="stylesheet" href="/css/font-awesome.min.css"><link rel="stylesheet" href="/css/insight.css"><link rel="stylesheet" href="/css/search.css"><link rel="alternate" type="application/atom+xml" title="ATOM 1.0" href="/atom.xml"><script src="/js/jquery.js"></script><meta name="generator" content="Hexo 5.4.0"></head><body><div class="page-top animated fadeInDown"><div class="nav"><li> <a href="/">Home</a></li><li> <a href="/archives">Archives</a></li><li> <a href="/tags">Tags</a></li><li> <a href="/about">About</a></li><li> <a href="/links">Links</a></li></div><div class="information"><div class="nav_right_btn"><li><a class="fa fa-chevron-left" onclick="window.history.go(-1)"> </a></li><li><a class="fa fa-search" onclick="openWindow();"></a></li></div><div class="avatar"><img src="/images/logo.webp"></div></div></div><div class="sidebar animated fadeInDown"><div class="sidebar-top"><div class="logo-title"><div class="title"><img src="/images/logo@2x.webp" style="width:200px;" alt="favicon"><h3 title=""><a href="/">空域</a></h3><div class="description"><p>没意思~</p></div></div><ul class="social-links"><li><a target="_blank" rel="noopener" href="https://github.com/BeiFangSAF"><i class="fa fa-github"></i></a></li><li><a href="mailto:BeiFangSAF@163.com"><i class="fa fa-envelope"></i></a></li></ul></div></div><div class="footer"><div class="p"> <span> 全站CC-BY-SA-3.0 </span><i class="fa fa-star"></i><span> Sitrus</span></div><div class="by_farbox"><span>Powered by </span><a href="https://hexo.io/zh-cn/" target="_blank">Hexo </a><span> & </span><span>Anatolo </span></div><div class="beian"></div></div></div><div class="main"><div class="autopagerize_page_element"><div class="content"><div class="post-page"><div class="post animated fadeInDown"><div class="post-title"><h3><a>群晖NAS自定义域名、SSL与免端口访问</a></h3></div><div class="post-content"><p><p>参考了各大平台上不同帖子，整理了一下自己的思路，有时间的话会补上详细过程和配图（大概没有）。</p>
+<h1 id="1-将域名托管到DNSPod"><a href="#1-将域名托管到DNSPod" class="headerlink" title="1.将域名托管到DNSPod"></a>1.将域名托管到DNSPod</h1><p>本人域名购自阿里云，但是发现腾讯云旗下的DNSPod.cn服务更完善些，遂转至DNSPod。</p>
+<p>只需在阿里云控制台将域名的DNS服务器切换为DNSPod指定的即可。</p>
+<h1 id="2-DDNS与自定义域名"><a href="#2-DDNS与自定义域名" class="headerlink" title="2.DDNS与自定义域名"></a>2.DDNS与自定义域名</h1><p>注意：首先，需要公网IP。</p>
+<p>我之前使用的是Oray的DDNS，域名托管在Cloudflare，二者的功能完全不重叠，也就是说要实现自定义域名访问，需要将CF的域名转发到Oray，因为Oray的免费二级域名不支持CNAME，更有甚者，Oray的域名不提供SSL证书，将HTTPS访问的途径堵死了。</p>
+<p>因此这一步就很能体现DNSPod的服务优势了。</p>
+<p>在域名托管完成后，在腾讯云申请DNSPod.cn的AppId和SecretKey，进入DSM，打开“控制面板-外部访问-DDNS-新增”，选择DNSPod.cn作为服务供应商，主机名称就可以直接使用自己的域名，分别填入AppId和SecretKey，就可以实现群晖自动将外部地址绑定到域名了。</p>
+<h1 id="3-UPnP设置"><a href="#3-UPnP设置" class="headerlink" title="3.UPnP设置"></a>3.UPnP设置</h1><p>这里顺带提一下，由于不想手动设置网关的端口转发规则，而且由于电脑需要P2P下载不能使用DMZ，所以开启了UPnP。本人网关路由是小米AX3600，进入“控制面板-外部访问-设置路由器”，即可自动完成设置。</p>
+<p>选择“新增”，添加群晖默认的5000、5001管理接口即可。</p>
+<p>至此，通过<a target="_blank" rel="noopener" href="http://xxxxxx.com:5000/">http://xxxxxx.com:5000/</a> 已经可以从外网访问DSM。</p>
+<p>注意，光纤用户请确保光猫已开启桥接模式并由路由器拨号，否则需要在光猫后台设置端口转发，但这样应该会及其麻烦。</p>
+<h1 id="4-局域网自定义Hosts"><a href="#4-局域网自定义Hosts" class="headerlink" title="4.局域网自定义Hosts"></a>4.局域网自定义Hosts</h1><p>由于<a target="_blank" rel="noopener" href="http://xxxxxx.com:5000/">http://xxxxxx.com:5000/</a> 是通过端口转发访问内网的域名，在局域网内是无法使用该域名的。</p>
+<p>在小米路由器绑定群晖NAS的IP地址，然后后台编辑自定义Hosts：</p>
+<p><code>192.168.1.100 xxxxxx.com</code></p>
+<p>Hosts记录会优先使用，这样在局域网内也可以使用该域名访问了。</p>
+<p>由于内网并不会封堵80、8080、443接口，访问时并不需要加端口号，用<a target="_blank" rel="noopener" href="http://xxxxxx.com/">http://xxxxxx.com/</a> 即可访问，不过群晖会自动将80端口的访问转到5000端口上。</p>
+<h1 id="5-SSL证书与HTTPS"><a href="#5-SSL证书与HTTPS" class="headerlink" title="5.SSL证书与HTTPS"></a>5.SSL证书与HTTPS</h1><p>腾讯云平台可以申请免费的TrustAsia一年SSL证书，但是单个证书只能对应一个二级域名或根域名。</p>
+<p>改版后流程非常简单，申请后10分钟内即可下载，下载Nginx格式的证书。</p>
+<p>打开“控制面板-安全性-证书-新增-添加新证书-导入证书（勾选“设为默认证书”）”，私钥选择“xxxxxx.com.key”，证书选择“xxxxxx.com_bundle.crt”，中间证书可空。</p>
+<p>注意，添加完成后，在“设置”中将各服务的证书全部更改为“xxxxxx.top”。这会导致使用内网IP或群晖QC访问显示不安全，不过这些都用不上了。</p>
+<p>最后，在“控制面板-登录门户-DSM”中勾选“自动将DSM桌面的HTTP连接重定向到HTTPS”即可启用强制HTTPS。</p>
+<p>至此，在内网、外网使用<a target="_blank" rel="noopener" href="https://xxxxxx.com:5001/">https://xxxxxx.com:5001/</a> 都可以实现安全访问。在“控制面板-外部访问-高级设置”的“主机名称或固定IP”处填入“xxxxxx.com”，这样群晖就会将这个域名作为默认地址了。</p>
+<h1 id="6-设置应用程序别名"><a href="#6-设置应用程序别名" class="headerlink" title="6.设置应用程序别名"></a>6.设置应用程序别名</h1><p>又是一个题外话，别名设置可以在不登陆DSM的情况下直接访问应用程序，例如File Station。</p>
+<p>在“控制面板-登录门户-应用程序”中选择需要的程序并编辑，在“网页服务-别名”处起个名字，例如File Station的别名为“file”，这样就可以通过<a target="_blank" rel="noopener" href="https://xxxxxx.com:5001/file/">https://xxxxxx.com:5001/file/</a> 来直接打开File Station。</p>
+<h1 id="7-免端口访问"><a href="#7-免端口访问" class="headerlink" title="7.免端口访问"></a>7.免端口访问</h1><p>由于中国的ISP封堵80、443端口，HTTP、HTTPS不能用不带端口的默认域名访问。</p>
+<p>接下来的方案并不是完美方案，借助了米发的301隐性重定向服务。</p>
+<p>过程就不细说了，写一下对应关系：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">yun.gggggg.com -&gt; https://xxxxxx.com:5001/</span><br><span class="line">file.gggggg.com -&gt; https://xxxxxx.com:5001/file/</span><br></pre></td></tr></table></figure>
+
+<p>记得勾选启用HTTPS。</p>
+<p>gggggg.com是我在CF托管的另一个域名，但是CF的页面规则中的重定向貌似有些问题，而且也不支持隐性重定向。另一方面，国内的云平台，比如DNSPod，重定向服务都需要备案，因此选择米发，有3条免费记录可用。</p>
+<p>进入CF后台，在gggggg.com的DNS设置中将yun.gggggg.com和file.gggggg.com都CNAME到米发指定的节点。</p>
+<p>由于隐性重定向是基于iFrame实现的，需要在DSM“控制面板-安全性-安全性”中取消勾选“不允许DSM被iFrame嵌入”，或者添加允许特定网站也可以。</p>
+<p>这样的话，可以实现免端口访问了。由于隐性重定向的特性，访问yun.gggggg.com时的SSL证书就是gggggg.com的证书，这一步在CF后台可以自动搞定。</p>
+<p>缺点：yun.gggggg.com并不能代替xxxxxx.com作为群晖的默认地址，由于其重定向的特性，访问yun.gggggg.com/~时都会被重定向到xxxxxx.com，即DSM的初始页面，造成功能无法使用（例如File Station的文件分享）。使用File Station分享文件时，依然需要产生带端口号的链接。</p>
+<p>不过瑕不掩瑜，在中国环境下，能搞定到第5步已经是完美解法了。</p>
+<h1 id="8-注"><a href="#8-注" class="headerlink" title="8.注"></a>8.注</h1><p>在使用群晖管家、Synology Photo等客户端时，应当使用“xxxxxx.com”作为主机名，软件会自动追加5000端口。</p>
+</p><div class="tip">本文采用CC-BY-SA-3.0协议，转载请注明出处<br>Author: Sitrus</div></div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2021-12-25</span><i class="fa fa-tag"></i><span class="leancloud_visitors"></span><span>About 1646 words, 5 min 29 sec  read</span></div></div></div></div><div class="share"><div class="evernote"><a class="fa fa-bookmark" href="" onclick="javascript:join_favorite()" ref="sidebar"></a></div><div class="weibo"><a class="fa fa-weibo" href="javascript:void((function(s,d,e){try{}catch(e){}var f='http://service.weibo.com/share/share.php?',u=d.location.href,p=['url=',e(u),'&amp;title=',e(d.title),'&amp;appkey=2924220432'].join('');function a(){if(!window.open([f,p].join(''),'mb',['toolbar=0,status=0,resizable=1,width=620,height=450,left=',(s.width-620)/2,',top=',(s.height-450)/2].join('')))u.href=[f,p].join('');};if(/Firefox/.test(navigator.userAgent)){setTimeout(a,0)}else{a()}})(screen,document,encodeURIComponent));"></a></div><div class="twitter"><a class="fa fa-twitter" target="_blank" rel="noopener" href="http://twitter.com/home?status=,http://example.com/2021/12/25/群晖NAS自定义域名、SSL与免端口访问/,空域,群晖NAS自定义域名、SSL与免端口访问,;"></a></div></div><div class="pagination"><ul class="clearfix"></ul></div><script src="/js/visitors.js"></script><a id="comments"></a><div id="vcomments" style="margin:0 30px;"></div><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script><script src="//cdn.jsdelivr.net/gh/xcss/valine@latest/dist/Valine.min.js"></script><script>var valine = new Valine({
+  el:'#vcomments',
+  notify:false || false, 
+  verify:false|| false, 
+  app_id:'8azvpMsPOnHVawIkdsqW1a2a-gzGzoHsz',
+  app_key:'jjaiTm7zPK7OiPmFkTlg7mlH',
+  placeholder:'hello, world',
+  path: window.location.pathname,
+  serverURLs: '',
+  visitor:true,
+  recordIP:true,
+  avatar:'retro'
+})</script></div></div></div></div><script src="/js/jquery-migrate-1.2.1.min.js"></script><script src="/js/jquery.appear.js"></script><script src="/js/add-bookmark.js"></script><script>(function(window){var INSIGHT_CONFIG={TRANSLATION:{POSTS:"Posts",PAGES:"Pages",CATEGORIES:"Categories",TAGS:"Tags",UNTITLED:"(Untitled)",},CONTENT_URL:"/content.json",};window.INSIGHT_CONFIG=INSIGHT_CONFIG})(window);</script><script src="/js/insight.js" defer></script><div class="searchbox ins-search"><div class="searchbox-container ins-search-container"><div class="searchbox-input-wrapper"><input class="searchbox-input ins-search-input" type="text" placeholder="Search..."><span class="searchbox-close"><a class="fa fa-times-circle" onclick="closeWindow();"></a></span></div><div class="searchbox-result-wrapper ins-section-wrapper"><div class="ins-section-container"><p>Seraching...</p></div></div></div></div></body></html>
